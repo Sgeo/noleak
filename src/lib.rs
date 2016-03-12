@@ -1,22 +1,30 @@
-pub struct Lock<T> {
-    opt_val: Option<T>
+use std::marker::PhantomData;
+
+pub struct Lock<'a, T: 'a> {
+    opt_val: Option<T>,
+    phantom_lock: PhantomData<&'a mut ()>
 }
 
-impl<T> Lock<T> {
+impl<'a, T: 'a> Lock<'a, T> {
     /// Creates a Lock<T> container, which should never be directly visible
     /// 
     /// Should not be called directly. Only public so that `noleak!()` can call it
-    pub unsafe fn new() -> Self {
-        Lock { opt_val: None }
+    pub fn new() -> Self {
+        Lock { opt_val: None, phantom_lock: PhantomData }
+    }
+    
+    pub fn lock<R, F: FnOnce(Acceptor<'a, T>) -> R>(&'a mut self, f: F) -> R {
+        let acc = Acceptor::new(self);
+        f(acc)
     }
 }
 
 pub struct Acceptor<'a, T: 'a> { 
-    mut_lock: &'a mut Lock<T>
+    mut_lock: &'a mut Lock<'a, T>
 }
 
 impl<'a, T: 'a> Acceptor<'a, T> {
-    pub unsafe fn new(lock: &'a mut Lock<T>) -> Self {
+    fn new(lock: &'a mut Lock<'a, T>) -> Self {
         Acceptor { mut_lock: lock }
     }
     
@@ -32,7 +40,7 @@ impl<'a, T: 'a> Acceptor<'a, T> {
 }
 
 pub struct Handle<'a, T: 'a> {
-    mut_lock: &'a mut Lock<T>
+    mut_lock: &'a mut Lock<'a, T>
 }
 
 impl<'a, T: 'a> std::ops::Deref for Handle<'a, T> {
