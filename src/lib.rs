@@ -26,7 +26,7 @@ impl<'a, T: 'a> Acceptor<'a, T> {
     }
     
     pub fn fill_from<'b>(self, handle_t: Handle<'b, T>) -> Handle<'a, T> {
-        let new = handle_t.mut_hidden.opt_val.take().unwrap();
+        let new = handle_t.mut_hidden.opt_val.take().expect("Attempting to .fill_from() an emptied Handle!")
         self.fill(new)
     }
 }
