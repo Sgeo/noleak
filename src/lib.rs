@@ -6,9 +6,9 @@ pub struct Lock<'a, T: 'a> {
 }
 
 impl<'a, T: 'a> Lock<'a, T> {
-    /// Creates a Lock<T> container, which should never be directly visible
-    /// 
-    /// Should not be called directly. Only public so that `noleak!()` can call it
+    /// Creates an empty Lock<T> container.
+    ///
+    /// Needs to be stored in a binding (e.g. `let lock = Lock::new();`) to be useful.
     pub fn new() -> Self {
         Lock { opt_val: None, phantom_lock: PhantomData }
     }
@@ -60,5 +60,9 @@ impl <'a, T: 'a> std::ops::DerefMut for Handle<'a, T> {
 mod test {
     #[test]
     fn it_works() {
+        use super::*;
+        let mut lock = Lock::new();
+        let mut handle = lock.lock(|acc| acc.fill(0i32));
+        assert_eq!(*handle, 0i32);
     }
 }
