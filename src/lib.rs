@@ -26,13 +26,26 @@ impl<'a, T: 'a> Acceptor<'a, T> {
     }
     
     pub fn fill_from<'b>(self, handle_t: Handle<'b, T>) -> Handle<'a, T> {
-        let new = handle_t.mut_hidden.opt_val.take().expect("Attempting to .fill_from() an emptied Handle!")
+        let new = handle_t.mut_hidden.opt_val.take().expect("Attempting to .fill_from() an emptied Handle!");
         self.fill(new)
     }
 }
 
 pub struct Handle<'a, T: 'a> {
     mut_hidden: &'a mut Hidden<T>
+}
+
+impl<'a, T: 'a> std::ops::Deref for Handle<'a, T> {
+    type Target = T;
+    fn deref(&self) -> &T {
+        self.mut_hidden.opt_val.as_ref().expect("Tried to deref() an emptied Handle!")
+    }
+}
+
+impl <'a, T: 'a> std::ops::DerefMut for Handle<'a, T> {
+    fn deref_mut(&mut self) -> &mut T {
+        self.mut_hidden.opt_val.as_mut().expect("Tried to deref_mut() an emptied Handle!")
+    }
 }
 
 #[cfg(test)]
