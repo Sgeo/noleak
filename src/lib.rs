@@ -13,6 +13,8 @@ impl<'a, T: 'a> Lock<'a, T> {
         Lock { opt_val: None, phantom_lock: PhantomData }
     }
     
+    // Needs to be `&'a mut self`, as that makes the Lock's `'a` the same lifetime as the passed-in `&mut self`, causing it to refer to itself.
+    // Taking `&mut self` instead of `&self` prevents another `Acceptor` from being created, which can help prevent confusion.
     pub fn lock<R, F: FnOnce(Acceptor<'a, T>) -> R>(&'a mut self, f: F) -> R {
         let acc = Acceptor::new(self);
         f(acc)
