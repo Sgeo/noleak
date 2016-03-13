@@ -15,9 +15,8 @@ impl<'a, T: 'a> Lock<'a, T> {
     
     // Needs to be `&'a mut self`, as that makes the Lock's `'a` the same lifetime as the passed-in `&mut self`, causing it to refer to itself.
     // Taking `&mut self` instead of `&self` prevents another `Acceptor` from being created, which can help prevent confusion.
-    pub fn lock<R, F: FnOnce(Acceptor<'a, T>) -> R>(&'a mut self, f: F) -> R {
-        let acc = Acceptor::new(self);
-        f(acc)
+    pub fn lock(&'a mut self) -> Acceptor<'a, T> {
+        Acceptor::new(self)
     }
 }
 
@@ -64,7 +63,7 @@ mod test {
     fn it_works() {
         use super::*;
         let mut lock = Lock::new();
-        let mut handle = lock.lock(|acc| acc.fill(0i32));
+        let mut handle = lock.lock().fill(0i32);
         assert_eq!(*handle, 0i32);
     }
 }
