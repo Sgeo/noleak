@@ -45,4 +45,15 @@ pub fn take<'lock, 't: 'lock, T: 't>(acc: Acceptor<'lock, HiddenHole<'t, T>>, mu
 }
 
 fn main() {
+    struct Foo;
+    impl Drop for Foo {
+        fn drop(&mut self) {
+            println!("Dropping Foo!");
+        }
+    }
+    let mut foo = Foo;
+    let mut lock = Lock::new();
+    let (t, t_hole) = take(lock.lock(), &mut foo);
+    drop(t);
+    t_hole.fill(Foo);
 }
