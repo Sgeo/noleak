@@ -1,6 +1,6 @@
-extern crate noleak;
+extern crate unleakable;
 
-use noleak::{Lock, Acceptor, Handle};
+use unleakable::{Lock, Acceptor, Handle};
 
 pub struct HiddenHole<'t, T: 't> {
     filled: bool,

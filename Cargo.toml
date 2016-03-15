@@ -1,5 +1,5 @@
 [package]
-name = "noleak"
+name = "unleakable"
 version = "0.1.0"
 authors = ["Sgeo <sgeoster@gmail.com>"]
 license = "MIT OR Apache-2.0"
