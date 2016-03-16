@@ -1,5 +1,7 @@
 # unleakable
 
+**This crate does not provide the guarantees that it wants to provide. Blocked on [Rust bug #14875](https://github.com/rust-lang/rust/issues/14875).**
+
 This crate provides a container that cannot be leaked (e.g. via `std::mem::forget()`) once `lock()`ed: `Lock<'lock, T>`.
 
 `Lock::lock()` returns an `Acceptor<'lock, T>`, which allows placing `T` inside the `Lock<'lock, T>`.
