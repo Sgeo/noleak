@@ -3,5 +3,9 @@ name = "unleakable"
 version = "0.1.0"
 authors = ["Sgeo <sgeoster@gmail.com>"]
 license = "MIT OR Apache-2.0"
+homepage = "https://github.com/Sgeo/unleakable"
+repository = "https://github.com/Sgeo/unleakable"
+description = "Unleakable values (only accessible through references), implemented via a self-referencing type"
+documentation = "https://crates.fyi/crates/unleakable/0.1.0/"
 
 [dependencies]
