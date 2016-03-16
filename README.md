@@ -6,7 +6,7 @@ This crate provides a container that cannot be leaked (e.g. via `std::mem::forge
 
 If the only safe way to create `T` requires an `Acceptor<'lock, T>`, then any `T` that can be constructed safely cannot be leaked.
 
-# Examples
+## Examples
 
 Exposing a type that cannot be leaked:
 
@@ -42,7 +42,7 @@ let mut dontleakme_handle = dontleakme::DontLeakMe::new(lock.lock());
 // Some uses may require reborrows like &mut *dontleakme_handle.
 ```
 
-# Limitations
+## Limitations
 
 * It might be more ergonomic in some circumstances to implement an immobile type directly than to use this crate. Note that self-referencing types cannot impl Drop, although their contents can.
 * `Handle<'lock, T>` implements `DerefMut`, so the underlying `T` could potentially be moved around given a second `Handle<'lock, T>`. If a bare `T` can be constructed, the `Handle`'s `T` could be swapped with the bare `T` and potentially leaked.
