@@ -12,7 +12,6 @@
 //!
 //! ```
 //! mod dontleakme {
-//!     //pub use unleakable; // Exposing unleakable, so clients don't need to include unleakable as a dependency
 //!     use unleakable::{Lock, Acceptor, Handle};
 //!     pub struct DontLeakMe { _marker: () } // No public constructor
 //!     impl DontLeakMe {
@@ -30,7 +29,7 @@
 //! Using a type that cannot be leaked:
 //! 
 //! ```
-//! # pub mod dontleakme {
+//! # mod dontleakme {
 //! #     use unleakable::{Lock, Acceptor, Handle};
 //! #     pub struct DontLeakMe { _marker: () } // No public constructor
 //! #     impl DontLeakMe {
@@ -43,9 +42,26 @@
 //! #         }
 //! #     }
 //! # }
-//! use dontleakme::DontLeakMe;
-//! //use dontleakme::unleakable::{Lock, Acceptor, Handle};
+//! use unleakable::{Lock, Acceptor, Handle};
+//! 
+//! // Create the lock. Must be bound, and lock.lock() used later.
+//! let mut lock = Lock::new();
+//! 
+//! // Passing in the relevent Acceptor.
+//! // The DontLeakMe will be destructed when lock goes out of scope.
+//! let mut dontleakme_handle = dontleakme::DontLeakMe::new(lock.lock());
+//! 
+//! // dontleakme_handle can now be used like a &DontLeakMe or &mut DontLeakMe.
+//! // Some uses may require reborrows like &mut *dontleakme_handle.
 //! ```
+//! 
+//! # Limitations
+//! 
+//! * It might be more ergonomic in some circumstances to implement an immobile type directly than to use this crate. Note that self-referencing types cannot impl Drop, although their contents can.
+//! * `Handle<'lock, T>` implements `DerefMut`, so the underlying `T` could potentially be moved around given a second `Handle<'lock, T>`. If a bare `T` can be constructed, the `Handle`'s `T` could be swapped with the bare `T` and potentially leaked.
+//! * The user of an unleakable type needs to create a `Lock` themselves, and thus needs access to the `Lock` type defined here.
+//! * The creation and use of a `Lock` cannot be abstracted out in a macro, due to [Rust bug #31856](https://github.com/rust-lang/rust/issues/31856).
+//! * This crate assumes that if a value cannot be moved, then it cannot be leaked. If another crate allows for violating this assumption (hypothetical example: setjmp/longjmp tricks), unsafety could result.
 
 use std::marker::PhantomData;
 
