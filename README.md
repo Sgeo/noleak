@@ -10,7 +10,7 @@ If the only safe way to create `T` requires an `Acceptor<'lock, T>`, then any `T
 
 Exposing a type that cannot be leaked:
 
-rust```
+```rust
 mod dontleakme {
     use unleakable::{Lock, Acceptor, Handle};
     pub struct DontLeakMe { _marker: () } // No public constructor
@@ -28,7 +28,7 @@ mod dontleakme {
 
 Using a type that cannot be leaked:
 
-rust```
+```rust
 use unleakable::{Lock, Acceptor, Handle};
 
 // Create the lock. Must be bound, and lock.lock() used later.
