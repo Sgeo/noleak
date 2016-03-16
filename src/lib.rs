@@ -1,5 +1,52 @@
 #![warn(missing_docs)]
 
+//! This crate provides a container that cannot be leaked (e.g. via `std::mem::forget()`) once `lock()`ed: `Lock<'lock, T>`.
+//!
+//! `Lock::lock()` returns an `Acceptor<'lock, T>`, which allows placing `T` inside the `Lock<'lock, T>`.
+//!
+//! If the only safe way to create `T` requires an `Acceptor<'lock, T>`, then any `T` that can be constructed safely cannot be leaked.
+//!
+//! # Examples
+//!
+//! Exposing a type that cannot be leaked:
+//!
+//! ```
+//! mod dontleakme {
+//!     //pub use unleakable; // Exposing unleakable, so clients don't need to include unleakable as a dependency
+//!     use unleakable::{Lock, Acceptor, Handle};
+//!     pub struct DontLeakMe { _marker: () } // No public constructor
+//!     impl DontLeakMe {
+//!         // Requires an Acceptor, which is guaranteed to put DontLeakMe into an unleakable Lock.
+//!         // Returns a Handle, which allows the user to use your type (via Deref/DerefMut)
+//!         pub fn new<'lock>(acc: Acceptor<'lock, Self>) -> Handle<'lock, Self> {
+//!             // Acceptor's .fill() method fills the Lock with the value,
+//!             // and returns a Handle.
+//!             acc.fill(DontLeakMe { _marker: () })
+//!         }
+//!     }
+//! }
+//! ```
+//!
+//! Using a type that cannot be leaked:
+//! 
+//! ```
+//! # pub mod dontleakme {
+//! #     use unleakable::{Lock, Acceptor, Handle};
+//! #     pub struct DontLeakMe { _marker: () } // No public constructor
+//! #     impl DontLeakMe {
+//! #         // Requires an Acceptor, which is guaranteed to put DontLeakMe into an unleakable Lock.
+//! #         // Returns a Handle, which allows the user to use your type (via Deref/DerefMut)
+//! #         pub fn new<'lock>(acc: Acceptor<'lock, Self>) -> Handle<'lock, Self> {
+//! #             // Acceptor's .fill() method fills the Lock with the value,
+//! #             // and returns a Handle.
+//! #             acc.fill(DontLeakMe { _marker: () })
+//! #         }
+//! #     }
+//! # }
+//! use dontleakme::DontLeakMe;
+//! //use dontleakme::unleakable::{Lock, Acceptor, Handle};
+//! ```
+
 use std::marker::PhantomData;
 
 pub struct Lock<'lock, T: 'lock> {
@@ -10,7 +57,7 @@ pub struct Lock<'lock, T: 'lock> {
 impl<'lock, T: 'lock> Lock<'lock, T> {
     /// Creates an empty Lock<T> container.
     ///
-    /// Needs to be stored in a binding (e.g. `let lock = Lock::new();`) to be useful.
+    /// Needs to be stored in a binding (e.g. `let mut lock = Lock::new();`) to be useful.
     pub fn new() -> Self {
         Lock { opt_val: None, phantom_lock: PhantomData }
     }
