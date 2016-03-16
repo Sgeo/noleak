@@ -1,3 +1,5 @@
+#![warn(missing_docs)]
+
 use std::marker::PhantomData;
 
 pub struct Lock<'lock, T: 'lock> {
